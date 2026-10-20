@@ -65,8 +65,6 @@
 [data-dash-source-state=empty] { color: transparent; }
 @media (max-width: 640px) { .tr-hide-sm { display: none; } }
 </style>
-
-
 <style>
 .tr-uf { cursor: pointer; }
 .tr-uf:hover .bg, .tr-uf.sel .bg { fill: var(--color-border-line); }
@@ -120,6 +118,12 @@
     <div class="tr-kpi"><div class="lbl">Km de rotas novas (ida e volta)</div><div class="val dash-skeleton" id="k-km" data-source="resumo" data-field="km_rotas_novas" data-where="chave=NE%7C*">—</div></div>
   </section>
 
+  <div class="tr-tabs tr-abas" id="abas" role="tablist">
+    <button class="tr-btn" type="button" role="tab" data-aba="diagnostico" aria-pressed="true">Diagnóstico</button>
+    <button class="tr-btn" type="button" role="tab" data-aba="plano" aria-pressed="false">Plano de rotas</button>
+  </div>
+
+  <div class="tr-aba" id="diagnostico">
   <section class="tr-card" id="cobertura">
     <h2>Cobertura atual das localidades distantes</h2>
     <p class="tr-note" id="cov-note">Parcela das localidades a 3 km ou mais do local de votação, por situação diante das rotas do edital.</p>
@@ -201,15 +205,67 @@
       </table>
     </div>
   </section>
+  </div>
+
+  <div class="tr-aba" id="plano" hidden>
+    <p class="tr-take" id="plano-take">As sugestões vêm das propostas de cada relatório, organizadas por prioridade: <b>1 – ação rápida</b> (parada extra ou extensão de uma rota que já roda), <b>2 – rota nova eficiente</b> (até 10 km de percurso por localidade atendida) e <b>3 – rota nova cara</b> (mais de 10 km por localidade).</p>
+
+    <section class="tr-kpis" id="plano-indicadores">
+      <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-p1"></i>1 – Ação rápida</div><div class="val dash-skeleton" id="pk-p1" data-source="resumo" data-field="p1" data-where="chave=NE%7C*">—</div></div>
+      <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-p2"></i>2 – Rota nova eficiente</div><div class="val dash-skeleton" id="pk-p2" data-source="resumo" data-field="p2" data-where="chave=NE%7C*">—</div></div>
+      <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-p3"></i>3 – Rota nova cara</div><div class="val dash-skeleton" id="pk-p3" data-source="resumo" data-field="p3" data-where="chave=NE%7C*">—</div></div>
+      <div class="tr-kpi"><div class="lbl">Localidades atendidas pelas propostas</div><div class="val dash-skeleton" id="pk-cob" data-source="resumo" data-field="cobertas" data-where="chave=NE%7C*">—</div></div>
+      <div class="tr-kpi"><div class="lbl">Percurso acrescentado (km)</div><div class="val dash-skeleton" id="pk-km" data-source="resumo" data-field="km_propostas" data-where="chave=NE%7C*">—</div></div>
+      <div class="tr-kpi"><div class="lbl">Tempo de viagem somado (horas)</div><div class="val dash-skeleton" id="pk-h" data-source="resumo" data-field="horas_propostas" data-where="chave=NE%7C*">—</div></div>
+    </section>
+
+    <div class="tr-grid">
+      <section class="tr-card" id="plano-prioridades">
+        <h2 id="pp-title">Propostas por prioridade</h2>
+        <p class="tr-note" id="pp-note">Quantas propostas de cada prioridade há em cada estado. Clique em um estado para filtrar.</p>
+        <div class="tr-chart" id="pp-box" style="min-height: 300px"></div>
+      </section>
+      <section class="tr-card" id="plano-mapa">
+        <h2 id="pm-title">Mapa do município</h2>
+        <p class="tr-note">Mapa do relatório: rotas do edital em vermelho, rotas sugeridas em azul tracejado.</p>
+        <div class="tr-map" id="pm-box"><div class="tr-empty">Escolha um estado e um município para ver o mapa com as rotas sugeridas.</div></div>
+      </section>
+    </div>
+
+    <section class="tr-card" id="rotas-sugeridas">
+      <div class="tr-tablehead"><h2>Rotas sugeridas<span class="tr-scope" id="rs-scope"></span></h2><span class="tr-count" id="rs-count"></span></div>
+      <p class="tr-note">Cada cartão é uma sugestão de rota, desenhada parada a parada. As localidades destacadas são as que hoje ficam sem ônibus e passam a ser atendidas.</p>
+      <div class="tr-controls" style="margin-bottom: var(--cds-gap-md)">
+        <label>Prioridade
+          <select id="rs-prio" aria-label="Prioridade">
+            <option value="">Todas</option>
+            <option value="1">1 – Ação rápida</option>
+            <option value="2">2 – Rota nova eficiente</option>
+            <option value="3">3 – Rota nova cara</option>
+          </select>
+        </label>
+        <label>Ordenar por
+          <select id="rs-ord" aria-label="Ordenar">
+            <option value="prio">Prioridade e eficiência</option>
+            <option value="loc">Mais localidades atendidas</option>
+            <option value="km">Menor percurso</option>
+            <option value="mun">Município</option>
+          </select>
+        </label>
+      </div>
+      <div id="rs-list"><div class="tr-prompt">Escolha um estado para ver as rotas sugeridas.</div></div>
+      <button class="tr-btn" type="button" id="rs-more" hidden style="margin-top: var(--cds-gap-md)">Mostrar mais</button>
+    </section>
+  </div>
 </div>
 
 <script>
 dash.calc('resumo', {
   title: 'Resumo por município, estado e Nordeste',
-  description: 'Soma as contagens de localidades e propostas dos municípios, por estado (chave "UF|*") e para todo o Nordeste ("NE|*").',
+  description: 'Soma as contagens de localidades e propostas dos municípios, por estado (chave "UF|*") e para todo o Nordeste ("NE|*"); cobertas = localidades sem ônibus que alguma proposta atende.',
   inputs: ['municipios'],
   fn: (municipios) => {
-    const campos = ['analisadas', 'atendidas', 'perto', 'sem_rota', 'rotas_novas', 'paradas_extras', 'extensoes', 'km_rotas_novas'];
+    const campos = ['analisadas', 'atendidas', 'perto', 'sem_rota', 'rotas_novas', 'paradas_extras', 'extensoes', 'km_rotas_novas', 'p1', 'p2', 'p3', 'km_propostas', 'min_propostas', 'loc_sem_proposta'];
     const acc = new Map();
     const get = (chave, uf, nome) => {
       if (!acc.has(chave)) acc.set(chave, Object.assign({ chave, uf, nome }, Object.fromEntries(campos.map((c) => [c, 0]))));
@@ -223,6 +279,9 @@ dash.calc('resumo', {
     }
     return [...acc.values()].map((r) => Object.assign(r, {
       km_rotas_novas: Math.round(r.km_rotas_novas * 10) / 10,
+      km_propostas: Math.round(r.km_propostas * 10) / 10,
+      horas_propostas: Math.round(r.min_propostas / 6) / 10,
+      cobertas: r.perto + r.sem_rota - r.loc_sem_proposta,
       precisam: r.perto + r.sem_rota,
       pct_sem: r.analisadas ? r.sem_rota / r.analisadas : 0,
       pct_atendidas: r.analisadas ? r.atendidas / r.analisadas : 0,
@@ -234,6 +293,8 @@ window.TR = (() => {
   const loc = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['R$', ''] });
   const fmt = { int: loc.format(','), km: loc.format(',.1f'), pct: loc.format('.0%'), pct1: loc.format('.1%') };
   const COL = { 'Atendida': dash.colors[0], 'Ônibus a 1–2 km': dash.colors[2], 'Sem rota': 'var(--cds-chart-status-critical)' };
+  const PCOL = { 1: dash.colors[3], 2: dash.colors[0], 3: dash.colors[4] };
+  const PTXT = { 1: '1 – Ação rápida', 2: '2 – Rota nova eficiente', 3: '3 – Rota nova cara' };
   const UFS = [['CE', 'Ceará'], ['RN', 'Rio Grande do Norte'], ['PB', 'Paraíba'], ['PE', 'Pernambuco'], ['AL', 'Alagoas'], ['SE', 'Sergipe'], ['BA', 'Bahia'], ['PI', 'Piauí'], ['MA', 'Maranhão']];
   const NOME_UF = Object.fromEntries(UFS);
   const escopo = (p) => p.uf && p.mun ? p.uf + '|' + p.mun : p.uf ? p.uf + '|*' : 'NE|*';
@@ -251,7 +312,7 @@ window.TR = (() => {
     t.remove();
     return w;
   };
-  return { fmt, COL, UFS, NOME_UF, escopo, enc, filtroLoc, empty, measure };
+  return { fmt, COL, PCOL, PTXT, UFS, NOME_UF, escopo, enc, filtroLoc, empty, measure };
 })();
 </script>
 
@@ -270,7 +331,20 @@ window.TR = (() => {
   fSit.addEventListener('change', () => dash.setParams({ sit: fSit.value || null }));
   let qTimer;
   fQ.addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => dash.setParams({ q: fQ.value.trim() || null }), 250); });
-  $('f-reset').addEventListener('click', () => { dash.resetParams(); dash.setParams({ uf: null, mun: null, sit: null, q: null }); fQ.value = ''; });
+  $('f-reset').addEventListener('click', () => { const aba = dash.params().aba || null; dash.resetParams(); dash.setParams({ uf: null, mun: null, sit: null, q: null, aba }); fQ.value = ''; });
+
+  // Abas: Diagnóstico e Plano de rotas
+  const PCOL = window.TR.PCOL;
+  document.querySelector('.sw-p1').style.background = PCOL[1];
+  document.querySelector('.sw-p2').style.background = PCOL[2];
+  document.querySelector('.sw-p3').style.background = PCOL[3];
+  $('abas').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-aba]'); if (!b) return;
+    dash.setParams({ aba: b.dataset.aba === 'diagnostico' ? null : b.dataset.aba });
+    dash.setLink(b.dataset.aba);
+  });
+  if (location.hash === '#plano') dash.setParams({ aba: 'plano' });
+  const pkpis = [['pk-p1', 'p1'], ['pk-p2', 'p2'], ['pk-p3', 'p3'], ['pk-cob', 'cobertas'], ['pk-km', 'km_propostas'], ['pk-h', 'horas_propostas']];
 
   const kpis = [['k-total', 'analisadas'], ['k-at', 'atendidas'], ['k-perto', 'perto'], ['k-sem', 'sem_rota'], ['k-rn', 'rotas_novas'], ['k-pe', 'paradas_extras'], ['k-km', 'km_rotas_novas']];
   let munKey = '';
@@ -293,8 +367,19 @@ window.TR = (() => {
     fSit.value = p.sit || '';
     if (document.activeElement !== fQ) fQ.value = p.q || '';
 
+    const aba = p.aba || 'diagnostico';
+    $('diagnostico').hidden = aba !== 'diagnostico';
+    $('plano').hidden = aba !== 'plano';
+    document.querySelectorAll('#abas button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.aba === aba ? 'true' : 'false'));
+
     const R = dash.data('resumo');
     const row = R.status === 'ok' ? R.data.find((r) => r.chave === scope) : null;
+    for (const [id, f] of pkpis) {
+      const el = $(id);
+      el.dataset.where = 'chave=' + enc(scope);
+      if (row) { el.classList.remove('dash-skeleton'); el.textContent = (f === 'km_propostas' || f === 'horas_propostas') ? fmt.km(row[f]) : fmt.int(row[f]); }
+      else if (R.status !== 'loading') el.classList.remove('dash-skeleton');
+    }
     for (const [id, f] of kpis) {
       const el = $(id);
       el.dataset.where = 'chave=' + enc(scope);
@@ -333,6 +418,7 @@ window.TR = (() => {
   const box = document.getElementById('uf-box');
   const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
   dash.onData(() => {
+    if (dash.params().aba === 'plano') return;
     const R = dash.data('resumo');
     if (R.status !== 'ok') { if (R.status !== 'loading') { box.classList.remove('dash-skeleton'); box.replaceChildren(); } return; }
     box.classList.remove('dash-skeleton');
@@ -394,6 +480,7 @@ window.TR = (() => {
   const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
 
   function draw() {
+    if (dash.params().aba === 'plano') return;
     const R = dash.data('resumo');
     if (R.status !== 'ok') { if (R.status !== 'loading') { box.classList.remove('dash-skeleton'); box.replaceChildren(); } return; }
     box.classList.remove('dash-skeleton');
@@ -470,6 +557,7 @@ window.TR = (() => {
   const scopeEl = document.getElementById('sc-scope');
   const base = 'Cada ponto é uma localidade. Mais à direita: mais longe da urna. Mais acima: mais longe do percurso do ônibus. As linhas tracejadas marcam 1 e 2 km do percurso.';
   function draw() {
+    if (dash.params().aba === 'plano') return;
     const p = dash.params();
     if (!p.uf) {
       box.removeAttribute('data-source'); box.classList.remove('dash-skeleton');
@@ -713,6 +801,291 @@ window.TR = (() => {
   }
   sortable(pt, ps, drawProp);
   dash.onData(drawProp);
+})();
+</script>
+
+<style>
+.tr-abas { border-bottom: 1px solid var(--color-border-line); padding-bottom: var(--cds-gap-sm); }
+.tr-abas button { font-size: var(--cds-font-size-body); padding: var(--cds-pad-xs) var(--cds-pad-md); }
+.tr-aba { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.tr-aba[hidden] { display: none; }
+.rs-list { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+.rs-card { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); background: var(--color-bg); }
+.rs-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--cds-gap-xs) var(--cds-gap-md); align-items: baseline; }
+.rs-name { font-weight: 600; font-size: var(--cds-font-size-body); }
+.rs-mun { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rs-prio { display: inline-flex; align-items: center; gap: 5px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-right: var(--cds-gap-sm); white-space: nowrap; }
+.rs-route { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 2px; margin: var(--cds-gap-sm) 0; font-size: var(--cds-font-size-caption); }
+.rs-stop { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg-muted); }
+.rs-stop.base { border-radius: 4px; color: var(--color-fg); font-weight: 600; }
+.rs-stop.served { color: var(--color-fg); font-weight: 600; border-width: 1.5px; }
+.rs-stop .dot { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
+.rs-arrow { color: var(--color-fg-muted); padding: 0 2px; }
+.rs-more-stops { cursor: pointer; border-style: dashed; }
+.rs-meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.rs-meta b { color: var(--color-fg); font-weight: 600; }
+.rs-obs { font-size: var(--cds-font-size-caption); color: var(--color-warn); margin-top: 4px; }
+</style>
+
+<script>
+(() => {
+  const { fmt, PCOL, PTXT, NOME_UF, empty } = window.TR;
+  const $ = (id) => document.getElementById(id);
+  const ppBox = $('pp-box'), ppTitle = $('pp-title'), ppNote = $('pp-note');
+  const pmBox = $('pm-box'), pmTitle = $('pm-title');
+  const list = $('rs-list'), count = $('rs-count'), more = $('rs-more'), scope = $('rs-scope');
+  const selPrio = $('rs-prio'), selOrd = $('rs-ord');
+  const PAGE = 60;
+  let limit = PAGE, mapShown = null;
+  selPrio.addEventListener('change', () => { limit = PAGE; draw(); });
+  selOrd.addEventListener('change', () => { limit = PAGE; draw(); });
+  more.addEventListener('click', () => { limit += PAGE; draw(); });
+  const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
+
+  const visivel = () => (dash.params().aba || 'diagnostico') === 'plano';
+
+  function filtradas(rows, p) {
+    const q = (p.q || '').toLowerCase();
+    let r = rows.filter((x) => (!p.mun || x.municipio === p.mun) &&
+      (!q || (x.proposta + ' ' + x.percurso + ' ' + x.localidades_atendidas).toLowerCase().includes(q)));
+    if (p.sit === 'Atendida') r = [];
+    else if (p.sit === 'Sem rota') r = r.filter((x) => x.tipo === 'Rota nova');
+    else if (p.sit === 'Ônibus a 1–2 km') r = r.filter((x) => x.tipo !== 'Rota nova');
+    return r;
+  }
+
+  // ---- gráfico: prioridades por estado, ou custo × alcance no estado ----
+  function drawChart(p) {
+    tip.hidden = true;
+    if (!p.uf) {
+      ppTitle.textContent = 'Propostas por prioridade';
+      ppNote.textContent = 'Quantas propostas de cada prioridade há em cada estado. Clique em um estado para ver as rotas sugeridas.';
+      ppBox.setAttribute('data-source', 'resumo');
+      const R = dash.data('resumo');
+      if (R.status !== 'ok') { ppBox.replaceChildren(); return; }
+      const rows = R.data.filter((r) => /^[A-Z]{2}\|\*$/.test(r.chave) && r.uf !== 'NE').sort((a, b) => d3.descending(a.p1 + a.p2 + a.p3, b.p1 + b.p2 + b.p3));
+      const W = Math.max(280, ppBox.clientWidth - 4), rowH = 30, top = 4;
+      const svg = d3.create('svg').attr('width', '100%').attr('font-family', 'var(--font-anthropic-sans)').attr('font-size', 11);
+      document.body.appendChild(svg.node());
+      const labW = window.TR.measure(svg, rows.map((r) => r.nome)) + 12;
+      const numW = window.TR.measure(svg, rows.map((r) => fmt.int(r.p1 + r.p2 + r.p3))) + 12;
+      svg.node().remove();
+      svg.attr('viewBox', `0 0 ${W} ${rows.length * rowH + top + 4}`);
+      const x = d3.scaleLinear([0, d3.max(rows, (r) => r.p1 + r.p2 + r.p3) || 1], [labW, W - numW]);
+      const g = svg.selectAll('g').data(rows).join('g').attr('class', 'tr-uf').attr('transform', (d, i) => `translate(0,${top + i * rowH})`);
+      g.append('rect').attr('class', 'bg').attr('width', W).attr('height', rowH).attr('rx', 4).style('fill', 'transparent');
+      g.append('text').attr('x', labW - 8).attr('y', rowH / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('fill', 'var(--color-fg)').text((d) => d.nome);
+      g.each(function (d) {
+        let x0 = 0;
+        for (const k of [1, 2, 3]) {
+          const v = d['p' + k];
+          d3.select(this).append('rect').attr('x', x(x0)).attr('y', 6).attr('height', rowH - 12).attr('width', Math.max(0, x(x0 + v) - x(x0))).style('fill', PCOL[k]);
+          x0 += v;
+        }
+        d3.select(this).append('text').attr('x', x(x0) + 4).attr('y', rowH / 2).attr('dy', '0.35em').style('fill', 'var(--color-fg-muted)').style('font-variant-numeric', 'tabular-nums').text(fmt.int(x0));
+      });
+      g.on('click', (e, d) => dash.setParams({ uf: d.uf, mun: null }))
+        .on('mousemove', (e, d) => {
+          tip.replaceChildren();
+          const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = d.nome; tip.append(t1);
+          for (const k of [1, 2, 3]) {
+            const l = document.createElement('div'); const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = PCOL[k]; sw.style.marginRight = '6px';
+            l.append(sw, `${PTXT[k]}: ${fmt.int(d['p' + k])}`); tip.append(l);
+          }
+          const l = document.createElement('div'); l.textContent = `${fmt.km(d.km_propostas)} km acrescentados`; tip.append(l);
+          const rb = ppBox.getBoundingClientRect();
+          tip.hidden = false;
+          tip.style.left = Math.max(0, Math.min(e.clientX - rb.left + 12, ppBox.clientWidth - 230)) + 'px';
+          tip.style.top = (e.clientY - rb.top + 12) + 'px';
+        })
+        .on('mouseleave', () => { tip.hidden = true; });
+      ppBox.replaceChildren(svg.node(), tip);
+      return;
+    }
+    const id = 'prop_' + p.uf;
+    ppBox.setAttribute('data-source', id);
+    ppTitle.textContent = 'Custo × alcance das sugestões';
+    const P = dash.data(id);
+    if (P.status !== 'ok') { ppBox.replaceChildren(P.status === 'loading' ? '' : empty('As propostas não carregaram.')); return; }
+    let rows = filtradas(P.data, p).filter((r) => r.extensao_km != null && r.extensao_km > 0);
+    if (selPrio.value) rows = rows.filter((r) => r.prioridade === +selPrio.value);
+    ppNote.textContent = `Cada ponto é uma das ${fmt.int(rows.length)} sugestões${p.mun ? ' de ' + p.mun : ' de ' + NOME_UF[p.uf]}. Mais à esquerda: menos percurso. Mais acima: mais localidades atendidas. Os pontos no alto e à esquerda rendem mais por quilômetro.`;
+    if (!rows.length) { ppBox.replaceChildren(empty('Nenhuma sugestão com esses filtros.')); return; }
+    const W = Math.max(300, ppBox.clientWidth), H = 300, m = { t: 22, r: 24, b: 36, l: 40 };
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('font-family', 'var(--font-anthropic-sans)').attr('font-size', 11);
+    const x = d3.scaleLog([Math.max(0.5, d3.min(rows, (r) => r.extensao_km) * 0.9), d3.max(rows, (r) => r.extensao_km) * 1.1], [m.l, W - m.r]);
+    const ymax = d3.max(rows, (r) => r.n_localidades);
+    const y = d3.scaleLinear([0, Math.max(3, ymax) + 0.5], [H - m.b, m.t]);
+    const nx = Math.max(2, Math.min(7, Math.floor((W - m.l - m.r) / 70)));
+    const gx = svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(nx, (v) => fmt.int(v)).tickSizeOuter(0)).attr('font-size', null).attr('font-family', null);
+    const gy = svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(Math.min(8, Math.max(3, ymax))).tickFormat((v) => Number.isInteger(v) ? fmt.int(v) : '').tickSize(-(W - m.l - m.r))).attr('font-size', null).attr('font-family', null);
+    gy.select('.domain').remove();
+    gy.selectAll('.tick line').style('stroke', 'var(--cds-chart-grid)');
+    gx.select('.domain').style('stroke', 'var(--cds-chart-axis)');
+    gx.selectAll('.tick line').style('stroke', 'var(--cds-chart-axis)');
+    svg.selectAll('.tick text').style('fill', 'var(--color-fg-muted)');
+    svg.append('text').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').style('fill', 'var(--color-fg-muted)').text('km acrescentados (escala logarítmica)');
+    svg.append('text').attr('x', m.l).attr('y', 4).attr('dy', '0.7em').style('fill', 'var(--color-fg-muted)').text('localidades atendidas');
+    const jit = (d) => ((parseInt(d.id.slice(-3), 10) % 7) - 3) * 0.06;
+    const r = rows.length > 2000 ? 2.4 : rows.length > 400 ? 3.2 : 4.5;
+    const data = rows.slice().sort((a, b) => b.prioridade - a.prioridade);
+    svg.append('g').selectAll('circle').data(data).join('circle')
+      .attr('cx', (d) => x(d.extensao_km)).attr('cy', (d) => y(d.n_localidades + jit(d))).attr('r', r)
+      .style('fill', (d) => PCOL[d.prioridade]).style('fill-opacity', 0.75);
+    const dot = svg.append('circle').attr('r', r + 3).style('fill', 'none').style('stroke-width', 2).attr('visibility', 'hidden');
+    const del = d3.Delaunay.from(data, (d) => x(d.extensao_km), (d) => y(d.n_localidades + jit(d)));
+    svg.on('mousemove', (e) => {
+      const [mx, my] = d3.pointer(e);
+      const d = data[del.find(mx, my)];
+      if (!d || Math.hypot(x(d.extensao_km) - mx, y(d.n_localidades + jit(d)) - my) > 24) { tip.hidden = true; dot.attr('visibility', 'hidden'); return; }
+      dot.attr('cx', x(d.extensao_km)).attr('cy', y(d.n_localidades + jit(d))).style('stroke', PCOL[d.prioridade]).attr('visibility', 'visible');
+      tip.replaceChildren();
+      const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = d.municipio + ' (' + d.uf + ') · ' + PTXT[d.prioridade]; tip.append(t1);
+      const t2 = document.createElement('div'); t2.style.fontWeight = 600; t2.textContent = d.proposta; tip.append(t2);
+      const t3 = document.createElement('div'); t3.textContent = `${fmt.km(d.extensao_km)} km · ${d.tempo} · ${fmt.int(d.n_localidades)} localidade(s)`; tip.append(t3);
+      const px = x(d.extensao_km) / W * ppBox.clientWidth, py = y(d.n_localidades) / H * ppBox.clientHeight;
+      tip.hidden = false;
+      tip.style.left = Math.max(0, Math.min(px + 12, ppBox.clientWidth - 260)) + 'px';
+      tip.style.top = Math.max(0, py - 10) + 'px';
+    }).on('mouseleave', () => { tip.hidden = true; dot.attr('visibility', 'hidden'); })
+      .on('click', (e) => {
+        const [mx, my] = d3.pointer(e);
+        const d = data[del.find(mx, my)];
+        if (d && !p.mun) dash.setParams({ mun: d.municipio });
+      });
+    ppBox.replaceChildren(svg.node(), tip);
+  }
+
+  // ---- mapa do município ----
+  function drawMap(p) {
+    if (!p.mun) {
+      pmTitle.textContent = 'Mapa do município';
+      if (mapShown !== '') { pmBox.removeAttribute('data-source'); pmBox.classList.remove('dash-skeleton'); pmBox.replaceChildren(empty(p.uf ? 'Escolha um município no filtro, no gráfico ou em um cartão para ver o mapa com as rotas sugeridas.' : 'Escolha um estado e um município para ver o mapa com as rotas sugeridas.')); mapShown = ''; }
+      return;
+    }
+    pmTitle.textContent = 'Mapa de ' + p.mun + ' (' + p.uf + ')';
+    const M = dash.data('municipios');
+    if (M.status !== 'ok') return;
+    const m = M.data.find((x) => x.uf === p.uf && x.nome === p.mun);
+    if (!m || !m.mapa) { pmBox.removeAttribute('data-source'); if (mapShown !== (m && m.chave)) { pmBox.replaceChildren(empty('Este relatório não tem mapa.')); mapShown = m && m.chave; } return; }
+    pmBox.setAttribute('data-source', m.mapa);
+    const Mp = dash.data(m.mapa);
+    if (Mp.status === 'loading') { if (mapShown !== m.chave) { pmBox.replaceChildren(); pmBox.classList.add('dash-skeleton'); } return; }
+    pmBox.classList.remove('dash-skeleton');
+    if (Mp.status !== 'ok') { pmBox.replaceChildren(empty('O mapa não carregou.')); mapShown = null; return; }
+    if (mapShown === m.chave) return;
+    const r = Mp.data.find((x) => x.municipio === m.nome);
+    if (r) {
+      const img = document.createElement('img');
+      img.alt = 'Mapa de ' + m.nome + ' com as rotas sugeridas';
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.svg);
+      pmBox.replaceChildren(img);
+    } else pmBox.replaceChildren(empty('Mapa não disponível para este município.'));
+    mapShown = m.chave;
+  }
+
+  // ---- cartões com o trajeto ----
+  function paradas(r) {
+    const atendidas = new Set(r.localidades_atendidas.split(',').map((s) => s.trim()).filter(Boolean));
+    let base = null, stops;
+    if (/^desvio/i.test(r.percurso)) {
+      const rota = (r.proposta.match(/Rotas? [\d, e()]+/) || [r.proposta])[0].replace(/^Rotas? /, 'Rota ').trim();
+      stops = r.percurso.replace(/^[^:]*:\s*/, '').split(' – ').map((s) => s.trim());
+      return [{ nome: rota + ' (percurso atual)', base: true }, ...stops.map((s) => ({ nome: s, atendida: atendidas.has(s) })), { nome: 'volta à ' + rota, base: true }];
+    }
+    stops = r.percurso.split(' – ').map((s) => s.trim());
+    return stops.map((s, i) => ({ nome: s.replace(/\s*\(local de votação\)\s*$/, ' (urna)'), atendida: atendidas.has(s), base: (i === 0 || i === stops.length - 1) && !atendidas.has(s) }));
+  }
+  function chip(s, cor) {
+    const el = document.createElement('span');
+    el.className = 'rs-stop' + (s.base ? ' base' : '') + (s.atendida ? ' served' : '');
+    if (s.atendida) { const d = document.createElement('i'); d.className = 'dot'; d.style.background = cor; el.style.borderColor = cor; el.append(d); }
+    el.append(s.nome);
+    return el;
+  }
+  function rota(r) {
+    const ps = paradas(r), cor = PCOL[r.prioridade];
+    const box = document.createElement('div'); box.className = 'rs-route';
+    const render = (todas) => {
+      box.replaceChildren();
+      let mostrar = ps;
+      if (!todas && ps.length > 12) mostrar = [...ps.slice(0, 5), { oculto: ps.length - 8 }, ...ps.slice(-3)];
+      mostrar.forEach((s, i) => {
+        if (i) { const a = document.createElement('span'); a.className = 'rs-arrow'; a.textContent = '→'; box.append(a); }
+        if (s.oculto) {
+          const b = document.createElement('span'); b.className = 'rs-stop rs-more-stops'; b.textContent = `+${s.oculto} paradas`;
+          b.title = 'Mostrar o trajeto completo'; b.addEventListener('click', () => render(true)); box.append(b);
+        } else box.append(chip(s, cor));
+      });
+    };
+    render(false);
+    return box;
+  }
+  function card(r, mostrarMun) {
+    const c = document.createElement('div'); c.className = 'rs-card'; c.dataset.key = r.id;
+    const head = document.createElement('div'); head.className = 'rs-head';
+    const left = document.createElement('div');
+    const pr = document.createElement('span'); pr.className = 'rs-prio';
+    const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = PCOL[r.prioridade];
+    pr.append(sw, PTXT[r.prioridade]);
+    const nm = document.createElement('span'); nm.className = 'rs-name'; nm.textContent = r.proposta;
+    left.append(pr, nm);
+    head.append(left);
+    if (mostrarMun) {
+      const mu = document.createElement('a'); mu.className = 'rs-mun'; mu.href = '#plano'; mu.textContent = r.municipio + ' (' + r.uf + ')';
+      mu.addEventListener('click', (e) => { e.preventDefault(); dash.setParams({ mun: r.municipio }); });
+      head.append(mu);
+    }
+    const meta = document.createElement('div'); meta.className = 'rs-meta';
+    const b = (t) => { const x = document.createElement('b'); x.textContent = t; return x; };
+    meta.append(b(r.extensao_km == null ? '—' : fmt.km(r.extensao_km) + ' km'), r.tipo === 'Rota nova' ? ' (ida e volta) · ' : ' a mais · ',
+      b(r.tempo || '—'), ' · ', b(r.km_por_localidade == null ? '—' : fmt.km(r.km_por_localidade)), ' km por localidade · atende ',
+      b(fmt.int(r.n_localidades)), r.n_localidades === 1 ? ' localidade' : ' localidades');
+    c.append(head, rota(r), meta);
+    if (r.observacao && mostrarMun) { const o = document.createElement('div'); o.className = 'rs-obs'; o.textContent = r.observacao; c.append(o); }
+    return c;
+  }
+  const ORD = {
+    prio: (a, b) => a.prioridade - b.prioridade || (a.km_por_localidade ?? 1e9) - (b.km_por_localidade ?? 1e9),
+    loc: (a, b) => b.n_localidades - a.n_localidades || a.prioridade - b.prioridade,
+    km: (a, b) => (a.extensao_km ?? 1e9) - (b.extensao_km ?? 1e9),
+    mun: (a, b) => a.municipio.localeCompare(b.municipio, 'pt') || a.prioridade - b.prioridade,
+  };
+  function drawList(p) {
+    if (!p.uf) {
+      list.removeAttribute('data-source'); scope.textContent = ''; count.textContent = ''; more.hidden = true;
+      list.replaceChildren(Object.assign(document.createElement('div'), { className: 'tr-prompt', textContent: 'Escolha um estado (no filtro ou no gráfico) para ver as rotas sugeridas.' }));
+      return;
+    }
+    const id = 'prop_' + p.uf;
+    list.setAttribute('data-source', id);
+    scope.textContent = ' · ' + (p.mun ? p.mun + ' (' + p.uf + ')' : NOME_UF[p.uf]);
+    const P = dash.data(id);
+    if (P.status !== 'ok') { count.textContent = ''; more.hidden = true; list.replaceChildren(Object.assign(document.createElement('div'), { className: 'tr-prompt', textContent: P.status === 'loading' ? 'Carregando sugestões…' : 'As sugestões não carregaram.' })); return; }
+    let rows = filtradas(P.data, p);
+    if (selPrio.value) rows = rows.filter((r) => r.prioridade === +selPrio.value);
+    rows = rows.slice().sort(ORD[selOrd.value]);
+    const box = document.createElement('div'); box.className = 'rs-list';
+    const obs = p.mun && rows.length && rows[0].observacao;
+    if (obs) { const o = document.createElement('div'); o.className = 'rs-obs'; o.style.marginTop = '0'; o.textContent = obs; box.append(o); }
+    for (const r of rows.slice(0, limit)) box.append(card(r, !p.mun));
+    list.replaceChildren(rows.length ? box : Object.assign(document.createElement('div'), { className: 'tr-prompt', textContent: 'Nenhuma sugestão com esses filtros.' }));
+    const km = d3.sum(rows, (r) => r.extensao_km || 0), loc = d3.sum(rows, (r) => r.n_localidades || 0);
+    count.textContent = `${rows.length > limit ? 'Mostrando ' + fmt.int(limit) + ' de ' : ''}${fmt.int(rows.length)} sugestões · ${fmt.int(loc)} localidades · ${fmt.km(km)} km`;
+    more.hidden = rows.length <= limit;
+  }
+
+  let lastKey = '';
+  function draw() {
+    if (!visivel()) return;
+    const p = dash.params();
+    const key = [p.uf, p.mun, p.sit, p.q].join('|');
+    if (key !== lastKey) { limit = PAGE; lastKey = key; }
+    drawChart(p);
+    drawMap(p);
+    drawList(p);
+  }
+  dash.onData(draw);
 })();
 </script>
 

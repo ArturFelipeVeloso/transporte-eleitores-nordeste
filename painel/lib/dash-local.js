@@ -11,7 +11,7 @@
   const calcCache = new Map();
   const listeners = [];
   const loading = new Map(); // id -> 'loading' | 'error'
-  const DEFAULT_PARAMS = { uf: null, mun: null, sit: null, q: null };
+  const DEFAULT_PARAMS = { uf: null, mun: null, sit: null, q: null, aba: null };
   let params = Object.assign({}, DEFAULT_PARAMS);
 
   let pending = false;

@@ -4,133 +4,133 @@
   "titulo": "Municípios do Nordeste",
   "descricao": "Um por município (9 estados), extraído dos relatórios do levantamento (19/10/2026): eleitorado, situação das rotas, edital e abstenção, mais as localidades por situação e as propostas contadas nas tabelas de cada relatório.",
   "linhas": 1794,
-  "bytes": 1287653
+  "bytes": 1435068
  },
  {
   "id": "loc_CE",
   "titulo": "Localidades – CE",
   "descricao": "Localidades rurais de Ceará a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 2793,
-  "bytes": 737306
+  "bytes": 782804
  },
  {
   "id": "prop_CE",
   "titulo": "Rotas propostas – CE",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Ceará, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Ceará, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 966,
-  "bytes": 271120
+  "bytes": 443552
  },
  {
   "id": "loc_RN",
   "titulo": "Localidades – RN",
   "descricao": "Localidades rurais de Rio Grande do Norte a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 855,
-  "bytes": 225660
+  "bytes": 239829
  },
  {
   "id": "prop_RN",
   "titulo": "Rotas propostas – RN",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Rio Grande do Norte, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Rio Grande do Norte, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 233,
-  "bytes": 68421
+  "bytes": 103833
  },
  {
   "id": "loc_PB",
   "titulo": "Localidades – PB",
   "descricao": "Localidades rurais de Paraíba a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 7489,
-  "bytes": 1930822
+  "bytes": 2057191
  },
  {
   "id": "prop_PB",
   "titulo": "Rotas propostas – PB",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Paraíba, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Paraíba, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 1178,
-  "bytes": 346280
+  "bytes": 493301
  },
  {
   "id": "loc_PE",
   "titulo": "Localidades – PE",
   "descricao": "Localidades rurais de Pernambuco a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 5878,
-  "bytes": 1579743
+  "bytes": 1674576
  },
  {
   "id": "prop_PE",
   "titulo": "Rotas propostas – PE",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Pernambuco, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Pernambuco, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 1107,
-  "bytes": 392699
+  "bytes": 575376
  },
  {
   "id": "loc_AL",
   "titulo": "Localidades – AL",
   "descricao": "Localidades rurais de Alagoas a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 2405,
-  "bytes": 628329
+  "bytes": 669933
  },
  {
   "id": "prop_AL",
   "titulo": "Rotas propostas – AL",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Alagoas, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Alagoas, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 313,
-  "bytes": 94970
+  "bytes": 133484
  },
  {
   "id": "loc_SE",
   "titulo": "Localidades – SE",
   "descricao": "Localidades rurais de Sergipe a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 1998,
-  "bytes": 531667
+  "bytes": 565321
  },
  {
   "id": "prop_SE",
   "titulo": "Rotas propostas – SE",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Sergipe, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Sergipe, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 407,
-  "bytes": 123476
+  "bytes": 173313
  },
  {
   "id": "loc_BA",
   "titulo": "Localidades – BA",
   "descricao": "Localidades rurais de Bahia a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 26149,
-  "bytes": 6887122
+  "bytes": 7313275
  },
  {
   "id": "prop_BA",
   "titulo": "Rotas propostas – BA",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Bahia, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Bahia, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 5327,
-  "bytes": 1694573
+  "bytes": 2438285
  },
  {
   "id": "loc_PI",
   "titulo": "Localidades – PI",
   "descricao": "Localidades rurais de Piauí a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 6202,
-  "bytes": 1646330
+  "bytes": 1747400
  },
  {
   "id": "prop_PI",
   "titulo": "Rotas propostas – PI",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Piauí, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Piauí, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 1568,
-  "bytes": 464440
+  "bytes": 668708
  },
  {
   "id": "loc_MA",
   "titulo": "Localidades – MA",
   "descricao": "Localidades rurais de Maranhão a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
   "linhas": 5645,
-  "bytes": 1599283
+  "bytes": 1686217
  },
  {
   "id": "prop_MA",
   "titulo": "Rotas propostas – MA",
-  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Maranhão, com percurso, extensão e tempo.",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Maranhão, com percurso, extensão e tempo, e a prioridade calculada (1: parada extra ou extensão; 2: rota nova com até 10 km por localidade atendida; 3: as demais).",
   "linhas": 2104,
-  "bytes": 664108
+  "bytes": 1106182
  },
  {
   "id": "mapas_CE",
