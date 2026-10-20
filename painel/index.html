@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transporte de eleitores rurais – Nordeste</title>
+<link rel="stylesheet" href="lib/tema.css">
+<script src="lib/d3.v7.min.js"></script>
+<script src="lib/dash-local.js"></script>
+<script src="dados/municipios.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.tr-page { font-family: var(--font-anthropic-sans); display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.tr-page b, .tr-page strong { font-weight: 600; }
+.tr-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.tr-take { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 60rem; }
+.tr-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: end; }
+.tr-controls label { display: flex; flex-direction: column; gap: 2px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tr-controls select, .tr-controls input { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); min-width: 12rem; }
+.tr-btn { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+.tr-btn:hover { background: var(--color-panel); }
+.tr-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); gap: var(--cds-gap-md); }
+.tr-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); }
+.tr-kpi .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: flex; align-items: center; gap: 6px; }
+.tr-kpi .val { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; margin-top: 2px; min-height: 1.2em; }
+.tr-sw { width: .6rem; height: .6rem; border-radius: 2px; display: inline-block; flex: none; }
+.tr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--cds-gap-md); }
+.tr-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.tr-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.tr-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 2px 0 var(--cds-gap-md); }
+.tr-cover { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--color-border-line); }
+.tr-cover div { height: 100%; }
+.tr-cover-leg { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); margin-top: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tr-cover-leg span { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.tr-rank { position: relative; min-height: 120px; }
+.tr-rank svg { display: block; }
+.tr-rank .row { cursor: pointer; }
+.tr-rank .row:hover .bg { fill: var(--color-border-line); }
+.tr-rank .row.sel .bg { fill: var(--color-border-line); }
+.tr-chart { position: relative; min-height: 360px; }
+.tr-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: 16rem; z-index: 2; }
+.tr-tip .t1 { color: var(--cds-text-secondary); }
+.tr-map { min-height: 300px; display: flex; align-items: center; justify-content: center; }
+.tr-map img { width: 100%; height: auto; border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: #fff; }
+.tr-empty { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); text-align: center; padding: var(--cds-pad-lg); }
+.tr-info { display: grid; grid-template-columns: max-content 1fr; gap: 4px var(--cds-gap-md); font-size: var(--cds-font-size-caption); margin-top: var(--cds-gap-md); }
+.tr-info dt { color: var(--color-fg-muted); }
+.tr-info dd { margin: 0; }
+.tr-info a { color: inherit; }
+.tr-tablebox { max-height: 520px; overflow: auto; border-top: 1px solid var(--color-border-line); }
+.tr-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.tr-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); cursor: pointer; white-space: nowrap; z-index: 1; }
+.tr-table th.num, .tr-table td.num { text-align: right; }
+.tr-table td { padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+.tr-table tr.click { cursor: pointer; }
+.tr-table tr.click:hover td { background: var(--color-bg); }
+.tr-pill { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.tr-tablehead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); }
+.tr-count { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.tr-tabs { display: flex; gap: var(--cds-gap-xs); flex-wrap: wrap; }
+.tr-tabs button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+[data-dash-source-state=empty] { color: transparent; }
+@media (max-width: 640px) { .tr-hide-sm { display: none; } }
+</style>
+
+
+<style>
+.tr-uf { cursor: pointer; }
+.tr-uf:hover .bg, .tr-uf.sel .bg { fill: var(--color-border-line); }
+.tr-prompt { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); text-align: center; padding: var(--cds-pad-xl) var(--cds-pad-lg); }
+.tr-prompt button { margin-top: var(--cds-gap-sm); }
+.tr-scope { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-left: var(--cds-gap-xs); font-weight: 400; }
+</style>
+
+<div class="tr-page">
+  <header class="tr-head" id="topo">
+    <h1>Transporte de eleitores rurais – Nordeste</h1>
+    <p class="tr-take" id="takeaway">
+      <span data-source="resumo" data-field="sem_rota" data-where="chave=NE%7C*" class="dash-skeleton">—</span> localidades rurais distantes
+      <span id="take-scope">no Nordeste</span> ainda não têm ônibus por perto, e outras
+      <span data-source="resumo" data-field="perto" data-where="chave=NE%7C*" class="dash-skeleton">—</span>
+      ficam a 1–2 km de uma rota, o que se resolve com uma parada extra.
+      <span id="take-hint">Escolha um estado para ver cada localidade e as propostas.</span>
+    </p>
+  </header>
+
+  <div class="tr-controls" id="filtros">
+    <label>Estado
+      <select id="f-uf" aria-label="Estado">
+        <option value="">Todo o Nordeste</option>
+      </select>
+    </label>
+    <label>Município
+      <select id="f-mun" aria-label="Município" data-source="municipios"></select>
+    </label>
+    <label>Situação da localidade
+      <select id="f-sit" aria-label="Situação">
+        <option value="">Todas</option>
+        <option value="Sem rota">Sem rota</option>
+        <option value="Ônibus a 1–2 km">Ônibus a 1–2 km</option>
+        <option value="Atendida">Atendida</option>
+      </select>
+    </label>
+    <label>Buscar localidade ou rota
+      <input id="f-q" type="search" placeholder="Ex.: Barra, Rota 03" aria-label="Buscar">
+    </label>
+    <button class="tr-btn" id="f-reset" type="button">Limpar filtros</button>
+  </div>
+
+  <section class="tr-kpis" id="indicadores">
+    <div class="tr-kpi"><div class="lbl">Localidades distantes (3 km+)</div><div class="val dash-skeleton" id="k-total" data-source="resumo" data-field="analisadas" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-ok"></i>Atendidas</div><div class="val dash-skeleton" id="k-at" data-source="resumo" data-field="atendidas" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-perto"></i>Ônibus a 1–2 km</div><div class="val dash-skeleton" id="k-perto" data-source="resumo" data-field="perto" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl"><i class="tr-sw sw-sem"></i>Sem rota</div><div class="val dash-skeleton" id="k-sem" data-source="resumo" data-field="sem_rota" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl">Rotas novas propostas</div><div class="val dash-skeleton" id="k-rn" data-source="resumo" data-field="rotas_novas" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl">Paradas extras propostas</div><div class="val dash-skeleton" id="k-pe" data-source="resumo" data-field="paradas_extras" data-where="chave=NE%7C*">—</div></div>
+    <div class="tr-kpi"><div class="lbl">Km de rotas novas (ida e volta)</div><div class="val dash-skeleton" id="k-km" data-source="resumo" data-field="km_rotas_novas" data-where="chave=NE%7C*">—</div></div>
+  </section>
+
+  <section class="tr-card" id="cobertura">
+    <h2>Cobertura atual das localidades distantes</h2>
+    <p class="tr-note" id="cov-note">Parcela das localidades a 3 km ou mais do local de votação, por situação diante das rotas do edital.</p>
+    <div class="tr-cover dash-skeleton" id="cov-bar" data-source="resumo"></div>
+    <div class="tr-cover-leg" id="cov-leg" data-source="resumo"></div>
+  </section>
+
+  <div class="tr-grid">
+    <section class="tr-card" id="estados">
+      <h2>Comparação entre estados</h2>
+      <p class="tr-note">Localidades distantes em cada estado, por situação. O número ao fim é a parcela atendida. Clique em um estado para filtrar o painel.</p>
+      <div class="tr-rank dash-skeleton" id="uf-box" data-source="resumo"></div>
+    </section>
+
+    <section class="tr-card" id="ranking">
+      <h2>Onde estão as carências<span class="tr-scope" id="rank-scope"></span></h2>
+      <p class="tr-note">Municípios ordenados pelo critério escolhido. Clique em um município para filtrar o painel.</p>
+      <div class="tr-tabs" id="rank-sort" style="margin-bottom: var(--cds-gap-sm)">
+        <button class="tr-btn" type="button" data-k="sem_rota" aria-pressed="true">Mais sem rota</button>
+        <button class="tr-btn" type="button" data-k="precisam">Mais precisam</button>
+        <button class="tr-btn" type="button" data-k="pct_sem">Maior % sem rota</button>
+      </div>
+      <div class="tr-rank dash-skeleton" id="rank-box" data-source="resumo"></div>
+      <button class="tr-btn" type="button" id="rank-more" style="margin-top: var(--cds-gap-sm)">Mostrar mais</button>
+    </section>
+  </div>
+
+  <section class="tr-card" id="dispersao">
+    <h2>Distância ao local de votação × distância ao ônibus<span class="tr-scope" id="sc-scope"></span></h2>
+    <p class="tr-note" id="sc-note">Cada ponto é uma localidade. Mais à direita: mais longe da urna. Mais acima: mais longe do percurso do ônibus. As linhas tracejadas marcam 1 e 2 km do percurso.</p>
+    <div class="tr-chart" id="sc-box"></div>
+  </section>
+
+  <section class="tr-card" id="municipio">
+    <h2 id="mun-title">Mapa do município</h2>
+    <p class="tr-note" id="mun-note">Mapa do relatório: rotas do edital em vermelho, propostas em azul tracejado, localidades sem rota em azul.</p>
+    <div class="tr-grid">
+      <div class="tr-map" id="map-box"><div class="tr-empty">Escolha um município no filtro ou no ranking para ver o mapa e os detalhes.</div></div>
+      <div id="mun-info"></div>
+    </div>
+  </section>
+
+  <section class="tr-card" id="localidades">
+    <div class="tr-tablehead"><h2>Localidades<span class="tr-scope" id="loc-scope"></span></h2><span class="tr-count" id="loc-count"></span></div>
+    <p class="tr-note">Distâncias por estrada. Para as que precisam de transporte, a última coluna mostra a proposta do relatório que as atende. Clique em um cabeçalho para ordenar.</p>
+    <div class="tr-prompt" id="loc-prompt">Escolha um estado para ver as localidades.</div>
+    <div class="tr-tablebox" id="loc-wrap" hidden>
+      <table class="tr-table" id="loc-table" data-row-key="id">
+        <thead><tr>
+          <th data-field="municipio" data-k="municipio">Município</th>
+          <th data-field="localidade" data-k="localidade">Localidade</th>
+          <th data-field="situacao" data-k="situacao">Situação</th>
+          <th data-field="km_local_votacao" data-k="km_local_votacao" class="num">Km até a urna</th>
+          <th data-field="rota_mais_proxima" data-k="rota_mais_proxima" class="tr-hide-sm">Rota mais próxima</th>
+          <th data-field="km_ate_rota" data-k="km_ate_rota" class="num">Km até o ônibus</th>
+          <th data-field="solucao_proposta" data-k="solucao_proposta" class="tr-hide-sm">Solução proposta</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tr-card" id="propostas">
+    <div class="tr-tablehead"><h2>Rotas propostas<span class="tr-scope" id="prop-scope"></span></h2><span class="tr-count" id="prop-count"></span></div>
+    <p class="tr-note">Rotas novas saem do local de votação mais próximo; paradas extras e extensões usam o ônibus de uma rota do edital. Todas só acrescentam percurso.</p>
+    <div class="tr-prompt" id="prop-prompt">Escolha um estado para ver as rotas propostas.</div>
+    <div class="tr-tablebox" id="prop-wrap" hidden>
+      <table class="tr-table" id="prop-table" data-row-key="id">
+        <thead><tr>
+          <th data-field="municipio" data-k="municipio">Município</th>
+          <th data-field="tipo" data-k="tipo">Tipo</th>
+          <th data-field="proposta" data-k="proposta">Proposta</th>
+          <th data-field="percurso" data-k="percurso" class="tr-hide-sm">Percurso</th>
+          <th data-field="n_localidades" data-k="n_localidades" class="num">Localidades</th>
+          <th data-field="extensao_km" data-k="extensao_km" class="num">Km</th>
+          <th data-field="tempo" data-k="tempo" class="tr-hide-sm">Tempo</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('resumo', {
+  title: 'Resumo por município, estado e Nordeste',
+  description: 'Soma as contagens de localidades e propostas dos municípios, por estado (chave "UF|*") e para todo o Nordeste ("NE|*").',
+  inputs: ['municipios'],
+  fn: (municipios) => {
+    const campos = ['analisadas', 'atendidas', 'perto', 'sem_rota', 'rotas_novas', 'paradas_extras', 'extensoes', 'km_rotas_novas'];
+    const acc = new Map();
+    const get = (chave, uf, nome) => {
+      if (!acc.has(chave)) acc.set(chave, Object.assign({ chave, uf, nome }, Object.fromEntries(campos.map((c) => [c, 0]))));
+      return acc.get(chave);
+    };
+    for (const m of municipios) {
+      if (m.fora_do_levantamento) continue;
+      for (const r of [get(m.chave, m.uf, m.nome), get(m.uf + '|*', m.uf, m.estado), get('NE|*', 'NE', 'Nordeste')]) {
+        for (const c of campos) r[c] += Number(m[c]) || 0;
+      }
+    }
+    return [...acc.values()].map((r) => Object.assign(r, {
+      km_rotas_novas: Math.round(r.km_rotas_novas * 10) / 10,
+      precisam: r.perto + r.sem_rota,
+      pct_sem: r.analisadas ? r.sem_rota / r.analisadas : 0,
+      pct_atendidas: r.analisadas ? r.atendidas / r.analisadas : 0,
+    }));
+  },
+});
+
+window.TR = (() => {
+  const loc = d3.formatLocale({ decimal: ',', thousands: '.', grouping: [3], currency: ['R$', ''] });
+  const fmt = { int: loc.format(','), km: loc.format(',.1f'), pct: loc.format('.0%'), pct1: loc.format('.1%') };
+  const COL = { 'Atendida': dash.colors[0], 'Ônibus a 1–2 km': dash.colors[2], 'Sem rota': 'var(--cds-chart-status-critical)' };
+  const UFS = [['CE', 'Ceará'], ['RN', 'Rio Grande do Norte'], ['PB', 'Paraíba'], ['PE', 'Pernambuco'], ['AL', 'Alagoas'], ['SE', 'Sergipe'], ['BA', 'Bahia'], ['PI', 'Piauí'], ['MA', 'Maranhão']];
+  const NOME_UF = Object.fromEntries(UFS);
+  const escopo = (p) => p.uf && p.mun ? p.uf + '|' + p.mun : p.uf ? p.uf + '|*' : 'NE|*';
+  const enc = (s) => encodeURIComponent(s);
+  const filtroLoc = (p) => {
+    const q = (p.q || '').toLowerCase();
+    return (l) => (!p.mun || l.municipio === p.mun) && (!p.sit || l.situacao === p.sit) &&
+      (!q || (l.localidade + ' ' + (l.rota_mais_proxima || '') + ' ' + (l.solucao_proposta || '')).toLowerCase().includes(q));
+  };
+  const empty = (t) => Object.assign(document.createElement('div'), { className: 'tr-empty', textContent: t });
+  const measure = (svg, texts) => {
+    const t = svg.append('text').attr('visibility', 'hidden');
+    let w = 0;
+    for (const s of texts) { t.text(s); w = Math.max(w, t.node().getComputedTextLength()); }
+    t.remove();
+    return w;
+  };
+  return { fmt, COL, UFS, NOME_UF, escopo, enc, filtroLoc, empty, measure };
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, COL, UFS, NOME_UF, escopo, enc } = window.TR;
+  const $ = (id) => document.getElementById(id);
+  document.querySelector('.sw-ok').style.background = COL['Atendida'];
+  document.querySelector('.sw-perto').style.background = COL['Ônibus a 1–2 km'];
+  document.querySelector('.sw-sem').style.background = COL['Sem rota'];
+
+  const fUf = $('f-uf'), fMun = $('f-mun'), fSit = $('f-sit'), fQ = $('f-q');
+  fUf.append(...UFS.map(([u, n]) => new Option(n + ' (' + u + ')', u)));
+  fUf.addEventListener('change', () => dash.setParams({ uf: fUf.value || null, mun: null }));
+  fMun.addEventListener('change', () => dash.setParams({ mun: fMun.value || null }));
+  fSit.addEventListener('change', () => dash.setParams({ sit: fSit.value || null }));
+  let qTimer;
+  fQ.addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => dash.setParams({ q: fQ.value.trim() || null }), 250); });
+  $('f-reset').addEventListener('click', () => { dash.resetParams(); dash.setParams({ uf: null, mun: null, sit: null, q: null }); fQ.value = ''; });
+
+  const kpis = [['k-total', 'analisadas'], ['k-at', 'atendidas'], ['k-perto', 'perto'], ['k-sem', 'sem_rota'], ['k-rn', 'rotas_novas'], ['k-pe', 'paradas_extras'], ['k-km', 'km_rotas_novas']];
+  let munKey = '';
+
+  dash.onData(() => {
+    const p = dash.params();
+    const scope = escopo(p);
+    fUf.value = p.uf || '';
+    const M = dash.data('municipios');
+    if (M.status === 'ok') {
+      const key = (p.uf || '') + M.data.length;
+      if (munKey !== key) {
+        const names = p.uf ? M.data.filter((m) => m.uf === p.uf && !m.fora_do_levantamento).map((m) => m.nome).sort((a, b) => a.localeCompare(b, 'pt')) : [];
+        fMun.replaceChildren(new Option(p.uf ? 'Todos os municípios' : 'Escolha um estado antes', ''), ...names.map((n) => new Option(n, n)));
+        munKey = key;
+      }
+    }
+    fMun.disabled = !p.uf;
+    fMun.value = p.mun || '';
+    fSit.value = p.sit || '';
+    if (document.activeElement !== fQ) fQ.value = p.q || '';
+
+    const R = dash.data('resumo');
+    const row = R.status === 'ok' ? R.data.find((r) => r.chave === scope) : null;
+    for (const [id, f] of kpis) {
+      const el = $(id);
+      el.dataset.where = 'chave=' + enc(scope);
+      if (row) { el.classList.remove('dash-skeleton'); el.textContent = f === 'km_rotas_novas' ? fmt.km(row[f]) : fmt.int(row[f]); }
+      else if (R.status !== 'loading') el.classList.remove('dash-skeleton');
+    }
+    document.querySelectorAll('#takeaway [data-source="resumo"]').forEach((el) => {
+      el.dataset.where = 'chave=' + enc(scope);
+      if (row) { el.classList.remove('dash-skeleton'); el.textContent = fmt.int(row[el.dataset.field]); }
+    });
+    $('take-scope').textContent = p.mun ? 'em ' + p.mun + ' (' + p.uf + ')' : p.uf ? 'em ' + NOME_UF[p.uf] : 'no Nordeste';
+    $('take-hint').textContent = p.mun ? 'Veja o mapa, cada localidade e as propostas abaixo.' : p.uf ? 'Escolha um município para ver o mapa do relatório.' : 'Escolha um estado para ver cada localidade e as propostas.';
+
+    const bar = $('cov-bar'), leg = $('cov-leg');
+    if (row) {
+      bar.classList.remove('dash-skeleton');
+      const parts = [['Atendida', row.atendidas], ['Ônibus a 1–2 km', row.perto], ['Sem rota', row.sem_rota]];
+      const tot = row.analisadas || 1;
+      bar.replaceChildren(...parts.map(([k, v]) => { const d = document.createElement('div'); d.style.width = (v / tot * 100) + '%'; d.style.background = COL[k]; return d; }));
+      leg.replaceChildren(...parts.map(([k, v]) => {
+        const s = document.createElement('span');
+        const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = COL[k];
+        s.append(sw, `${k}: ${fmt.int(v)} (${fmt.pct(row.analisadas ? v / row.analisadas : 0)})`);
+        return s;
+      }));
+      const onde = p.mun ? ' em ' + p.mun : p.uf ? ' em ' + NOME_UF[p.uf] : ' no Nordeste';
+      $('cov-note').textContent = `Parcela das ${fmt.int(row.analisadas)} localidades a 3 km ou mais do local de votação${onde}, por situação diante das rotas do edital.`;
+    } else if (R.status !== 'loading') { bar.classList.remove('dash-skeleton'); bar.replaceChildren(); leg.replaceChildren(); }
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, COL, NOME_UF, measure } = window.TR;
+  const box = document.getElementById('uf-box');
+  const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
+  dash.onData(() => {
+    const R = dash.data('resumo');
+    if (R.status !== 'ok') { if (R.status !== 'loading') { box.classList.remove('dash-skeleton'); box.replaceChildren(); } return; }
+    box.classList.remove('dash-skeleton');
+    const sel = dash.params().uf;
+    const rows = R.data.filter((r) => /^[A-Z]{2}\|\*$/.test(r.chave) && r.uf !== 'NE').sort((a, b) => d3.descending(a.sem_rota, b.sem_rota));
+    const W = Math.max(280, box.clientWidth - 4), rowH = 30, top = 4;
+    const svg = d3.create('svg').attr('width', '100%').attr('font-family', 'var(--font-anthropic-sans)').attr('font-size', 11);
+    document.body.appendChild(svg.node());
+    const labW = measure(svg, rows.map((r) => r.nome)) + 12;
+    const numW = measure(svg, ['100%']) + 12;
+    svg.node().remove();
+    svg.attr('viewBox', `0 0 ${W} ${rows.length * rowH + top + 4}`);
+    const x = d3.scaleLinear([0, d3.max(rows, (r) => r.analisadas) || 1], [labW, W - numW]);
+    const g = svg.selectAll('g').data(rows).join('g').attr('class', (d) => 'tr-uf' + (d.uf === sel ? ' sel' : '')).attr('transform', (d, i) => `translate(0,${top + i * rowH})`);
+    g.append('rect').attr('class', 'bg').attr('width', W).attr('height', rowH).attr('rx', 4).style('fill', 'transparent');
+    g.append('text').attr('x', labW - 8).attr('y', rowH / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('fill', 'var(--color-fg)').style('font-weight', (d) => d.uf === sel ? 600 : 400).text((d) => d.nome);
+    g.each(function (d) {
+      let x0 = 0;
+      for (const [k, v] of [['Sem rota', d.sem_rota], ['Ônibus a 1–2 km', d.perto], ['Atendida', d.atendidas]]) {
+        d3.select(this).append('rect').attr('x', x(x0)).attr('y', 6).attr('height', rowH - 12).attr('width', Math.max(0, x(x0 + v) - x(x0))).style('fill', COL[k]);
+        x0 += v;
+      }
+      d3.select(this).append('text').attr('x', x(x0) + 4).attr('y', rowH / 2).attr('dy', '0.35em').style('fill', 'var(--color-fg-muted)').style('font-variant-numeric', 'tabular-nums').text(fmt.pct(d.pct_atendidas));
+    });
+    g.on('click', (e, d) => dash.setParams({ uf: d.uf === sel ? null : d.uf, mun: null }))
+      .on('mousemove', (e, d) => {
+        tip.replaceChildren();
+        const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = d.nome; tip.append(t1);
+        for (const [k, v] of [['Sem rota', d.sem_rota], ['Ônibus a 1–2 km', d.perto], ['Atendida', d.atendidas]]) {
+          const l = document.createElement('div'); const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = COL[k]; sw.style.marginRight = '6px';
+          l.append(sw, `${k}: ${fmt.int(v)}`); tip.append(l);
+        }
+        const l = document.createElement('div'); l.textContent = `Propostas: ${fmt.int(d.rotas_novas)} rotas novas, ${fmt.int(d.paradas_extras)} paradas extras`; tip.append(l);
+        const rb = box.getBoundingClientRect();
+        tip.hidden = false;
+        tip.style.left = Math.max(0, Math.min(e.clientX - rb.left + 12, box.clientWidth - 230)) + 'px';
+        tip.style.top = (e.clientY - rb.top + 12) + 'px';
+      })
+      .on('mouseleave', () => { tip.hidden = true; });
+    box.replaceChildren(svg.node(), tip);
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, COL, NOME_UF, measure } = window.TR;
+  const box = document.getElementById('rank-box');
+  const more = document.getElementById('rank-more');
+  const scopeEl = document.getElementById('rank-scope');
+  let sortKey = 'sem_rota', limit = 25;
+  document.getElementById('rank-sort').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-k]'); if (!b) return;
+    sortKey = b.dataset.k;
+    document.querySelectorAll('#rank-sort button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    draw();
+  });
+  more.addEventListener('click', () => { limit = limit >= 100000 ? 25 : (limit === 25 ? 100 : 100000); draw(); });
+  const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
+
+  function draw() {
+    const R = dash.data('resumo');
+    if (R.status !== 'ok') { if (R.status !== 'loading') { box.classList.remove('dash-skeleton'); box.replaceChildren(); } return; }
+    box.classList.remove('dash-skeleton');
+    const p = dash.params();
+    const all = R.data.filter((r) => !r.chave.endsWith('|*') && r.analisadas > 0 && (!p.uf || r.uf === p.uf))
+      .sort((a, b) => d3.descending(a[sortKey], b[sortKey]) || d3.descending(a.precisam, b.precisam) || a.nome.localeCompare(b.nome, 'pt'));
+    let rows = all.slice(0, limit);
+    if (p.mun && !rows.some((r) => r.nome === p.mun && r.uf === p.uf)) { const s = all.find((r) => r.nome === p.mun && r.uf === p.uf); if (s) rows = rows.concat([s]); }
+    scopeEl.textContent = p.uf ? ' · ' + NOME_UF[p.uf] : ' · Nordeste';
+    more.hidden = all.length <= 25;
+    more.textContent = limit >= all.length ? 'Mostrar só os 25 primeiros' : `Mostrar ${limit === 25 ? Math.min(100, all.length) : 'todos os ' + fmt.int(all.length)} municípios`;
+    const lab = (d) => p.uf ? d.nome : d.nome + ' · ' + d.uf;
+    const pctMode = sortKey === 'pct_sem';
+    const W = Math.max(280, box.clientWidth - 4), rowH = 20, top = 4;
+    const svg = d3.create('svg').attr('width', '100%').attr('font-family', 'var(--font-anthropic-sans)').attr('font-size', 11);
+    document.body.appendChild(svg.node());
+    const cap = W * 0.42;
+    const t = svg.append('text').attr('visibility', 'hidden');
+    const labels = new Map(); let labW = 0;
+    for (const r of rows) {
+      let s = lab(r); t.text(s);
+      while (t.node().getComputedTextLength() > cap - 10 && s.length > 4) { s = s.slice(0, -2); t.text(s + '…'); }
+      labels.set(r.chave, t.text()); labW = Math.max(labW, t.node().getComputedTextLength());
+    }
+    t.remove();
+    const numW = measure(svg, rows.map((r) => pctMode ? fmt.pct(r.pct_sem) : fmt.int(r[sortKey]))) + 12;
+    svg.node().remove();
+    labW += 10;
+    svg.attr('viewBox', `0 0 ${W} ${rows.length * rowH + top + 4}`);
+    const xmax = pctMode ? 1 : d3.max(rows, (r) => r.analisadas) || 1;
+    const x = d3.scaleLinear([0, xmax], [labW, W - numW]);
+    const isSel = (d) => p.mun && d.nome === p.mun && d.uf === p.uf;
+    const g = svg.selectAll('g').data(rows).join('g').attr('class', (d) => 'row' + (isSel(d) ? ' sel' : '')).attr('transform', (d, i) => `translate(0,${top + i * rowH})`);
+    g.append('rect').attr('class', 'bg').attr('width', W).attr('height', rowH).attr('rx', 4).style('fill', 'transparent');
+    g.append('text').attr('x', labW - 6).attr('y', rowH / 2).attr('dy', '0.35em').attr('text-anchor', 'end').style('fill', 'var(--color-fg)').style('font-weight', (d) => isSel(d) ? 600 : 400).text((d) => labels.get(d.chave));
+    g.each(function (d) {
+      const parts = pctMode
+        ? [['Sem rota', d.sem_rota / d.analisadas], ['Ônibus a 1–2 km', d.perto / d.analisadas], ['Atendida', d.atendidas / d.analisadas]]
+        : [['Sem rota', d.sem_rota], ['Ônibus a 1–2 km', d.perto], ['Atendida', d.atendidas]];
+      let x0 = 0;
+      for (const [k, v] of parts) {
+        d3.select(this).append('rect').attr('x', x(x0)).attr('y', 4).attr('height', rowH - 8).attr('width', Math.max(0, x(x0 + v) - x(x0))).style('fill', COL[k]);
+        x0 += v;
+      }
+      d3.select(this).append('text').attr('x', x(x0) + 4).attr('y', rowH / 2).attr('dy', '0.35em').style('fill', 'var(--color-fg-muted)').style('font-variant-numeric', 'tabular-nums')
+        .text(pctMode ? fmt.pct(d.pct_sem) : fmt.int(d[sortKey]));
+    });
+    g.on('click', (e, d) => dash.setParams(isSel(d) ? { mun: null } : { uf: d.uf, mun: d.nome }))
+      .on('mousemove', (e, d) => {
+        tip.replaceChildren();
+        const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = d.nome + ' (' + d.uf + ')'; tip.append(t1);
+        for (const [k, v] of [['Sem rota', d.sem_rota], ['Ônibus a 1–2 km', d.perto], ['Atendida', d.atendidas]]) {
+          const l = document.createElement('div'); const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = COL[k]; sw.style.marginRight = '6px';
+          l.append(sw, `${k}: ${fmt.int(v)}`); tip.append(l);
+        }
+        const l = document.createElement('div'); l.textContent = `Propostas: ${fmt.int(d.rotas_novas)} rotas novas, ${fmt.int(d.paradas_extras)} paradas extras`; tip.append(l);
+        const rb = box.getBoundingClientRect();
+        tip.hidden = false;
+        tip.style.left = Math.max(0, Math.min(e.clientX - rb.left + 12, box.clientWidth - 230)) + 'px';
+        tip.style.top = (e.clientY - rb.top + 12) + 'px';
+      })
+      .on('mouseleave', () => { tip.hidden = true; });
+    box.replaceChildren(svg.node(), tip);
+  }
+  dash.onData(draw);
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, COL, NOME_UF, filtroLoc, empty } = window.TR;
+  const box = document.getElementById('sc-box');
+  const note = document.getElementById('sc-note');
+  const scopeEl = document.getElementById('sc-scope');
+  const base = 'Cada ponto é uma localidade. Mais à direita: mais longe da urna. Mais acima: mais longe do percurso do ônibus. As linhas tracejadas marcam 1 e 2 km do percurso.';
+  function draw() {
+    const p = dash.params();
+    if (!p.uf) {
+      box.removeAttribute('data-source'); box.classList.remove('dash-skeleton');
+      scopeEl.textContent = '';
+      note.textContent = base;
+      box.replaceChildren(empty('Escolha um estado (no filtro ou clicando na comparação entre estados) para ver as localidades.'));
+      return;
+    }
+    const id = 'loc_' + p.uf;
+    box.setAttribute('data-source', id);
+    scopeEl.textContent = ' · ' + (p.mun ? p.mun + ' (' + p.uf + ')' : NOME_UF[p.uf]);
+    const L = dash.data(id);
+    if (L.status !== 'ok') {
+      if (L.status === 'loading') { box.replaceChildren(); box.classList.add('dash-skeleton'); }
+      else { box.classList.remove('dash-skeleton'); box.replaceChildren(empty('As localidades não carregaram.')); }
+      return;
+    }
+    box.classList.remove('dash-skeleton');
+    const rows = L.data.filter(filtroLoc(p));
+    const semMedida = rows.filter((l) => l.km_ate_rota == null).length;
+    const pts = rows.filter((l) => l.km_ate_rota != null && l.km_local_votacao != null);
+    const extra = semMedida ? ` ${fmt.int(semMedida)} localidades não aparecem porque o relatório não mede a distância até um percurso (sem rotas no DJE, transporte dispensado ou rota não traçada); todas contam como sem rota.` : '';
+    if (!pts.length) {
+      note.textContent = base;
+      box.replaceChildren(empty(semMedida ? `O relatório não mede a distância até o ônibus para as ${fmt.int(semMedida)} localidades deste filtro (sem rotas no DJE, transporte dispensado ou rota não traçada); todas contam como sem rota.` : 'Nenhuma localidade com esses filtros.'));
+      return;
+    }
+    const W = Math.max(300, box.clientWidth), H = 380;
+    const m = { t: 22, r: 24, b: 36, l: 44 };
+    const svg = d3.create('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('font-family', 'var(--font-anthropic-sans)').attr('font-size', 11);
+    const x = d3.scaleLinear([0, Math.max(5, d3.max(pts, (d) => d.km_local_votacao)) * 1.03], [m.l, W - m.r]).nice();
+    const y = d3.scaleLinear([0, Math.max(3, d3.max(pts, (d) => d.km_ate_rota)) * 1.05], [H - m.b, m.t]).nice();
+    const nx = Math.max(2, Math.min(8, Math.floor((W - m.l - m.r) / 60)));
+    const gx = svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(nx).tickFormat(fmt.km).tickSizeOuter(0)).attr('font-size', null).attr('font-family', null);
+    const gy = svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(fmt.km).tickSize(-(W - m.l - m.r))).attr('font-size', null).attr('font-family', null);
+    gy.select('.domain').remove();
+    gy.selectAll('.tick line').style('stroke', 'var(--cds-chart-grid)');
+    gx.select('.domain').style('stroke', 'var(--cds-chart-axis)');
+    gx.selectAll('.tick line').style('stroke', 'var(--cds-chart-axis)');
+    svg.selectAll('.tick text').style('fill', 'var(--color-fg-muted)');
+    for (const v of [1, 2]) svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+    svg.append('text').attr('x', W - m.r).attr('y', H - 4).attr('text-anchor', 'end').style('fill', 'var(--color-fg-muted)').text('km até o local de votação');
+    svg.append('text').attr('x', m.l).attr('y', 4).attr('dy', '0.7em').style('fill', 'var(--color-fg-muted)').text('km até o percurso do ônibus');
+    const r = pts.length > 5000 ? 1.8 : pts.length > 1500 ? 2.2 : pts.length > 300 ? 3 : 4.5;
+    const order = { 'Atendida': 0, 'Ônibus a 1–2 km': 1, 'Sem rota': 2 };
+    const data = pts.slice().sort((a, b) => order[a.situacao] - order[b.situacao]);
+    svg.append('g').selectAll('circle').data(data).join('circle')
+      .attr('cx', (d) => x(d.km_local_votacao)).attr('cy', (d) => y(d.km_ate_rota)).attr('r', r)
+      .style('fill', (d) => COL[d.situacao]).style('fill-opacity', 0.7);
+    const tip = document.createElement('div'); tip.className = 'tr-tip'; tip.hidden = true;
+    const dot = svg.append('circle').attr('r', r + 3).style('fill', 'none').style('stroke-width', 2).attr('visibility', 'hidden');
+    const del = d3.Delaunay.from(data, (d) => x(d.km_local_votacao), (d) => y(d.km_ate_rota));
+    svg.on('mousemove', (e) => {
+      const [mx, my] = d3.pointer(e);
+      const d = data[del.find(mx, my)];
+      if (!d || Math.hypot(x(d.km_local_votacao) - mx, y(d.km_ate_rota) - my) > 24) { tip.hidden = true; dot.attr('visibility', 'hidden'); return; }
+      dot.attr('cx', x(d.km_local_votacao)).attr('cy', y(d.km_ate_rota)).style('stroke', COL[d.situacao]).attr('visibility', 'visible');
+      tip.replaceChildren();
+      const t1 = document.createElement('div'); t1.className = 't1'; t1.textContent = d.municipio + ' (' + d.uf + ')'; tip.append(t1);
+      const t2 = document.createElement('div'); t2.style.fontWeight = 600; t2.textContent = d.localidade; tip.append(t2);
+      const t3 = document.createElement('div'); t3.textContent = `${d.situacao} · ${fmt.km(d.km_local_votacao)} km da urna · ${fmt.km(d.km_ate_rota)} km da ${d.rota_mais_proxima}`; tip.append(t3);
+      if (d.solucao_proposta) { const t4 = document.createElement('div'); t4.textContent = 'Proposta: ' + d.solucao_proposta; tip.append(t4); }
+      const px = x(d.km_local_votacao) / W * box.clientWidth, py = y(d.km_ate_rota) / H * box.clientHeight;
+      tip.hidden = false;
+      tip.style.left = Math.max(0, Math.min(px + 12, box.clientWidth - 260)) + 'px';
+      tip.style.top = Math.max(0, py - 10) + 'px';
+    }).on('mouseleave', () => { tip.hidden = true; dot.attr('visibility', 'hidden'); });
+    box.replaceChildren(svg.node(), tip);
+    note.textContent = `Cada ponto é uma das ${fmt.int(pts.length)} localidades. Mais à direita: mais longe da urna. Mais acima: mais longe do percurso do ônibus. As linhas tracejadas marcam 1 e 2 km do percurso.` + extra;
+  }
+  dash.onData(draw);
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, empty } = window.TR;
+  const mapBox = document.getElementById('map-box'), info = document.getElementById('mun-info');
+  const title = document.getElementById('mun-title');
+  let shown = null;
+  dash.onData(() => {
+    const p = dash.params();
+    if (!p.mun) {
+      title.textContent = 'Mapa do município';
+      if (shown !== '') {
+        mapBox.removeAttribute('data-source'); mapBox.classList.remove('dash-skeleton');
+        mapBox.replaceChildren(empty(p.uf ? 'Escolha um município no filtro ou no ranking para ver o mapa e os detalhes.' : 'Escolha um estado e depois um município para ver o mapa do relatório.'));
+        info.replaceChildren(); shown = '';
+      }
+      return;
+    }
+    title.textContent = 'Mapa de ' + p.mun + ' (' + p.uf + ')';
+    const M = dash.data('municipios');
+    if (M.status !== 'ok') return;
+    const m = M.data.find((x) => x.uf === p.uf && x.nome === p.mun);
+    if (!m) { info.replaceChildren(); mapBox.replaceChildren(empty('Município não encontrado.')); shown = null; return; }
+    const key = m.chave;
+    if (!m.mapa) {
+      mapBox.removeAttribute('data-source');
+      if (shown !== key) { mapBox.replaceChildren(empty('Este relatório não tem mapa.')); shown = key; }
+    } else {
+      mapBox.setAttribute('data-source', m.mapa);
+      const Mp = dash.data(m.mapa);
+      if (Mp.status === 'ok') {
+        mapBox.classList.remove('dash-skeleton');
+        if (shown !== key) {
+          const r = Mp.data.find((x) => x.municipio === m.nome);
+          if (r) {
+            const img = document.createElement('img');
+            img.alt = 'Mapa de ' + m.nome + ' com rotas e localidades';
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.svg);
+            mapBox.replaceChildren(img);
+          } else mapBox.replaceChildren(empty('Mapa não disponível para este município.'));
+          shown = key;
+        }
+      } else if (Mp.status === 'loading') { if (shown !== key) { mapBox.replaceChildren(); mapBox.classList.add('dash-skeleton'); } }
+      else { mapBox.classList.remove('dash-skeleton'); mapBox.replaceChildren(empty('O mapa não carregou.')); shown = null; }
+    }
+    const dl = document.createElement('dl'); dl.className = 'tr-info';
+    const add = (lbl, val, link) => {
+      const dt = document.createElement('dt'); dt.textContent = lbl;
+      const dd = document.createElement('dd');
+      if (link) { if (val) { const a = document.createElement('a'); a.href = val; a.target = '_blank'; a.rel = 'noopener'; a.textContent = link; dd.append(a); } else dd.textContent = '—'; }
+      else dd.textContent = val ?? '—';
+      dl.append(dt, dd);
+    };
+    add('Estado', m.estado);
+    add('Zona eleitoral', m.zona ? m.zona + 'ª' + (m.sede_zona ? ' – ' + m.sede_zona : '') : null);
+    add('Juiz(a) eleitoral', m.juiz_eleitoral || 'não informado no relatório');
+    add('Eleitores aptos', m.eleitores == null ? null : fmt.int(m.eleitores));
+    add('Eleitores em locais rurais', m.eleitores_rurais == null ? null : fmt.int(m.eleitores_rurais));
+    add('Abstenção no 1º turno', m.abstencao_pct_1t == null ? null : fmt.pct1(m.abstencao_pct_1t) + ' (' + fmt.int(m.abstencoes_1t) + ')');
+    add('Situação das rotas', m.situacao_rotas);
+    add('Rotas no edital', m.rotas_edital == null ? null : fmt.int(m.rotas_edital));
+    add('Edital', m.edital);
+    add('Versão do relatório', m.versao);
+    add('Relatório', m.url_pdf, 'Baixar PDF');
+    add('Página do município', m.url, 'Abrir no site');
+    info.setAttribute('data-source', 'municipios');
+    info.replaceChildren(dl);
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const { fmt, COL, NOME_UF, filtroLoc } = window.TR;
+  const LIMIT = 1500;
+  function sortable(table, state, redraw) {
+    table.querySelector('thead').addEventListener('click', (e) => {
+      const th = e.target.closest('th[data-k]'); if (!th) return;
+      const k = th.dataset.k;
+      state.dir = state.key === k ? -state.dir : (th.classList.contains('num') ? -1 : 1);
+      state.key = k;
+      table.querySelectorAll('th').forEach((x) => x.setAttribute('aria-sort', x === th ? (state.dir > 0 ? 'ascending' : 'descending') : 'none'));
+      redraw();
+    });
+  }
+  const cmp = (k, dir) => (a, b) => {
+    const va = a[k], vb = b[k];
+    if (va == null && vb == null) return 0; if (va == null) return 1; if (vb == null) return -1;
+    return (typeof va === 'number' ? va - vb : String(va).localeCompare(String(vb), 'pt')) * dir;
+  };
+  const show = (prompt, wrap, ok, msg) => { prompt.hidden = ok; wrap.hidden = !ok; if (!ok) prompt.textContent = msg; };
+
+  // Localidades
+  const lt = document.getElementById('loc-table'), lcount = document.getElementById('loc-count');
+  const lp = document.getElementById('loc-prompt'), lw = document.getElementById('loc-wrap'), lsc = document.getElementById('loc-scope');
+  const ls = { key: null, dir: 1 };
+  const sitOrder = { 'Sem rota': 0, 'Ônibus a 1–2 km': 1, 'Atendida': 2 };
+  function drawLoc() {
+    const p = dash.params();
+    const tb = lt.tBodies[0];
+    if (!p.uf) { lt.removeAttribute('data-source'); lsc.textContent = ''; lcount.textContent = ''; tb.replaceChildren(); show(lp, lw, false, 'Escolha um estado para ver as localidades.'); return; }
+    const id = 'loc_' + p.uf;
+    lt.setAttribute('data-source', id);
+    lsc.textContent = ' · ' + (p.mun ? p.mun + ' (' + p.uf + ')' : NOME_UF[p.uf]);
+    const L = dash.data(id);
+    if (L.status !== 'ok') { lcount.textContent = ''; tb.replaceChildren(); show(lp, lw, false, L.status === 'loading' ? 'Carregando localidades…' : 'As localidades não carregaram.'); return; }
+    show(lp, lw, true);
+    let rows = L.data.filter(filtroLoc(p));
+    rows = ls.key ? rows.slice().sort(cmp(ls.key, ls.dir))
+      : rows.slice().sort((a, b) => sitOrder[a.situacao] - sitOrder[b.situacao] || (b.km_local_votacao ?? 0) - (a.km_local_votacao ?? 0));
+    const frag = document.createDocumentFragment();
+    for (const r of rows.slice(0, LIMIT)) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.id;
+      if (!p.mun) { tr.className = 'click'; tr.title = 'Filtrar por ' + r.municipio; }
+      const td = (t, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = t; tr.append(c); return c; };
+      td(r.municipio); td(r.localidade);
+      const s = td(''); const pill = document.createElement('span'); pill.className = 'tr-pill';
+      const sw = document.createElement('i'); sw.className = 'tr-sw'; sw.style.background = COL[r.situacao]; pill.append(sw, r.situacao); s.append(pill);
+      if (r.situacao_detalhe && r.situacao_detalhe.includes('dispensado')) s.title = r.situacao_detalhe;
+      td(r.km_local_votacao == null ? '—' : fmt.km(r.km_local_votacao), 'num');
+      td(r.rota_mais_proxima || '—', 'tr-hide-sm');
+      td(r.km_ate_rota == null ? '—' : fmt.km(r.km_ate_rota), 'num');
+      td(r.solucao_proposta || (r.situacao === 'Atendida' ? '' : '—'), 'tr-hide-sm');
+      frag.append(tr);
+    }
+    tb.replaceChildren(frag);
+    lcount.textContent = rows.length > LIMIT ? `Mostrando ${fmt.int(LIMIT)} de ${fmt.int(rows.length)}; filtre por município ou situação para ver todas` : `${fmt.int(rows.length)} localidades`;
+  }
+  sortable(lt, ls, drawLoc);
+  lt.tBodies[0].addEventListener('click', (e) => {
+    if (dash.params().mun) return;
+    const tr = e.target.closest('tr[data-key]'); if (!tr) return;
+    dash.setParams({ mun: tr.cells[0].textContent });
+  });
+  dash.onData(drawLoc);
+
+  // Propostas
+  const pt = document.getElementById('prop-table'), pcount = document.getElementById('prop-count');
+  const pp = document.getElementById('prop-prompt'), pw = document.getElementById('prop-wrap'), psc = document.getElementById('prop-scope');
+  const ps = { key: null, dir: 1 };
+  function drawProp() {
+    const p = dash.params();
+    const tb = pt.tBodies[0];
+    if (!p.uf) { pt.removeAttribute('data-source'); psc.textContent = ''; pcount.textContent = ''; tb.replaceChildren(); show(pp, pw, false, 'Escolha um estado para ver as rotas propostas.'); return; }
+    const id = 'prop_' + p.uf;
+    pt.setAttribute('data-source', id);
+    psc.textContent = ' · ' + (p.mun ? p.mun + ' (' + p.uf + ')' : NOME_UF[p.uf]);
+    const P = dash.data(id);
+    if (P.status !== 'ok') { pcount.textContent = ''; tb.replaceChildren(); show(pp, pw, false, P.status === 'loading' ? 'Carregando propostas…' : 'As propostas não carregaram.'); return; }
+    show(pp, pw, true);
+    const q = (p.q || '').toLowerCase();
+    let rows = P.data.filter((r) => (!p.mun || r.municipio === p.mun) && (!q || (r.proposta + ' ' + r.percurso + ' ' + r.localidades_atendidas).toLowerCase().includes(q)));
+    if (p.sit === 'Atendida') rows = [];
+    else if (p.sit === 'Sem rota') rows = rows.filter((r) => r.tipo === 'Rota nova');
+    else if (p.sit === 'Ônibus a 1–2 km') rows = rows.filter((r) => r.tipo !== 'Rota nova');
+    if (ps.key) rows = rows.slice().sort(cmp(ps.key, ps.dir));
+    const frag = document.createDocumentFragment();
+    for (const r of rows.slice(0, LIMIT)) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.id;
+      const td = (t, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = t; tr.append(c); };
+      td(r.municipio); td(r.tipo); td(r.proposta); td(r.percurso, 'tr-hide-sm');
+      td(fmt.int(r.n_localidades), 'num'); td(r.extensao_km == null ? '—' : fmt.km(r.extensao_km), 'num'); td(r.tempo || '—', 'tr-hide-sm');
+      frag.append(tr);
+    }
+    tb.replaceChildren(frag);
+    const km = d3.sum(rows, (r) => r.tipo === 'Rota nova' ? (r.extensao_km || 0) : 0);
+    pcount.textContent = (rows.length > LIMIT ? `Mostrando ${fmt.int(LIMIT)} de ${fmt.int(rows.length)}` : `${fmt.int(rows.length)} propostas`) + (km ? ` · ${fmt.km(km)} km de rotas novas` : '');
+  }
+  sortable(pt, ps, drawProp);
+  dash.onData(drawProp);
+})();
+</script>
+
+</div>
+</body>
+</html>

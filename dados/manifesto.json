@@ -1,0 +1,226 @@
+[
+ {
+  "id": "municipios",
+  "titulo": "Municípios do Nordeste",
+  "descricao": "Um por município (9 estados), extraído dos relatórios do levantamento (19/10/2026): eleitorado, situação das rotas, edital e abstenção, mais as localidades por situação e as propostas contadas nas tabelas de cada relatório.",
+  "linhas": 1794,
+  "bytes": 1287653
+ },
+ {
+  "id": "loc_CE",
+  "titulo": "Localidades – CE",
+  "descricao": "Localidades rurais de Ceará a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 2793,
+  "bytes": 737306
+ },
+ {
+  "id": "prop_CE",
+  "titulo": "Rotas propostas – CE",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Ceará, com percurso, extensão e tempo.",
+  "linhas": 966,
+  "bytes": 271120
+ },
+ {
+  "id": "loc_RN",
+  "titulo": "Localidades – RN",
+  "descricao": "Localidades rurais de Rio Grande do Norte a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 855,
+  "bytes": 225660
+ },
+ {
+  "id": "prop_RN",
+  "titulo": "Rotas propostas – RN",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Rio Grande do Norte, com percurso, extensão e tempo.",
+  "linhas": 233,
+  "bytes": 68421
+ },
+ {
+  "id": "loc_PB",
+  "titulo": "Localidades – PB",
+  "descricao": "Localidades rurais de Paraíba a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 7489,
+  "bytes": 1930822
+ },
+ {
+  "id": "prop_PB",
+  "titulo": "Rotas propostas – PB",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Paraíba, com percurso, extensão e tempo.",
+  "linhas": 1178,
+  "bytes": 346280
+ },
+ {
+  "id": "loc_PE",
+  "titulo": "Localidades – PE",
+  "descricao": "Localidades rurais de Pernambuco a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 5878,
+  "bytes": 1579743
+ },
+ {
+  "id": "prop_PE",
+  "titulo": "Rotas propostas – PE",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Pernambuco, com percurso, extensão e tempo.",
+  "linhas": 1107,
+  "bytes": 392699
+ },
+ {
+  "id": "loc_AL",
+  "titulo": "Localidades – AL",
+  "descricao": "Localidades rurais de Alagoas a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 2405,
+  "bytes": 628329
+ },
+ {
+  "id": "prop_AL",
+  "titulo": "Rotas propostas – AL",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Alagoas, com percurso, extensão e tempo.",
+  "linhas": 313,
+  "bytes": 94970
+ },
+ {
+  "id": "loc_SE",
+  "titulo": "Localidades – SE",
+  "descricao": "Localidades rurais de Sergipe a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 1998,
+  "bytes": 531667
+ },
+ {
+  "id": "prop_SE",
+  "titulo": "Rotas propostas – SE",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Sergipe, com percurso, extensão e tempo.",
+  "linhas": 407,
+  "bytes": 123476
+ },
+ {
+  "id": "loc_BA",
+  "titulo": "Localidades – BA",
+  "descricao": "Localidades rurais de Bahia a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 26149,
+  "bytes": 6887122
+ },
+ {
+  "id": "prop_BA",
+  "titulo": "Rotas propostas – BA",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Bahia, com percurso, extensão e tempo.",
+  "linhas": 5327,
+  "bytes": 1694573
+ },
+ {
+  "id": "loc_PI",
+  "titulo": "Localidades – PI",
+  "descricao": "Localidades rurais de Piauí a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 6202,
+  "bytes": 1646330
+ },
+ {
+  "id": "prop_PI",
+  "titulo": "Rotas propostas – PI",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Piauí, com percurso, extensão e tempo.",
+  "linhas": 1568,
+  "bytes": 464440
+ },
+ {
+  "id": "loc_MA",
+  "titulo": "Localidades – MA",
+  "descricao": "Localidades rurais de Maranhão a 3 km ou mais do local de votação, com distância por estrada à urna e ao percurso do ônibus, situação e a proposta que as atende. Distâncias que o relatório não mede ficam vazias.",
+  "linhas": 5645,
+  "bytes": 1599283
+ },
+ {
+  "id": "prop_MA",
+  "titulo": "Rotas propostas – MA",
+  "descricao": "Rotas novas, paradas extras e extensões propostas nos relatórios de Maranhão, com percurso, extensão e tempo.",
+  "linhas": 2104,
+  "bytes": 664108
+ },
+ {
+  "id": "mapas_CE",
+  "titulo": "Mapas – CE",
+  "descricao": "Mapas (SVG) dos relatórios de Ceará, com rotas do edital, propostas e localidades.",
+  "linhas": 180,
+  "bytes": 4956270
+ },
+ {
+  "id": "mapas_RN",
+  "titulo": "Mapas – RN",
+  "descricao": "Mapas (SVG) dos relatórios de Rio Grande do Norte, com rotas do edital, propostas e localidades.",
+  "linhas": 165,
+  "bytes": 1834485
+ },
+ {
+  "id": "mapas_PB",
+  "titulo": "Mapas – PB",
+  "descricao": "Mapas (SVG) dos relatórios de Paraíba, com rotas do edital, propostas e localidades.",
+  "linhas": 220,
+  "bytes": 4837487
+ },
+ {
+  "id": "mapas_PE",
+  "titulo": "Mapas – PE",
+  "descricao": "Mapas (SVG) dos relatórios de Pernambuco, com rotas do edital, propostas e localidades.",
+  "linhas": 182,
+  "bytes": 5287783
+ },
+ {
+  "id": "mapas_AL",
+  "titulo": "Mapas – AL",
+  "descricao": "Mapas (SVG) dos relatórios de Alagoas, com rotas do edital, propostas e localidades.",
+  "linhas": 101,
+  "bytes": 2156842
+ },
+ {
+  "id": "mapas_SE",
+  "titulo": "Mapas – SE",
+  "descricao": "Mapas (SVG) dos relatórios de Sergipe, com rotas do edital, propostas e localidades.",
+  "linhas": 74,
+  "bytes": 1572449
+ },
+ {
+  "id": "mapas_BA_1",
+  "titulo": "Mapas – BA (parte 1)",
+  "descricao": "Mapas (SVG) dos relatórios de Bahia (parte 1), com rotas do edital, propostas e localidades.",
+  "linhas": 91,
+  "bytes": 6165020
+ },
+ {
+  "id": "mapas_BA_2",
+  "titulo": "Mapas – BA (parte 2)",
+  "descricao": "Mapas (SVG) dos relatórios de Bahia (parte 2), com rotas do edital, propostas e localidades.",
+  "linhas": 114,
+  "bytes": 6161856
+ },
+ {
+  "id": "mapas_BA_3",
+  "titulo": "Mapas – BA (parte 3)",
+  "descricao": "Mapas (SVG) dos relatórios de Bahia (parte 3), com rotas do edital, propostas e localidades.",
+  "linhas": 122,
+  "bytes": 6227888
+ },
+ {
+  "id": "mapas_BA_4",
+  "titulo": "Mapas – BA (parte 4)",
+  "descricao": "Mapas (SVG) dos relatórios de Bahia (parte 4), com rotas do edital, propostas e localidades.",
+  "linhas": 88,
+  "bytes": 3734237
+ },
+ {
+  "id": "mapas_PI_1",
+  "titulo": "Mapas – PI (parte 1)",
+  "descricao": "Mapas (SVG) dos relatórios de Piauí (parte 1), com rotas do edital, propostas e localidades.",
+  "linhas": 221,
+  "bytes": 6232722
+ },
+ {
+  "id": "mapas_PI_2",
+  "titulo": "Mapas – PI (parte 2)",
+  "descricao": "Mapas (SVG) dos relatórios de Piauí (parte 2), com rotas do edital, propostas e localidades.",
+  "linhas": 3,
+  "bytes": 48496
+ },
+ {
+  "id": "mapas_MA",
+  "titulo": "Mapas – MA",
+  "descricao": "Mapas (SVG) dos relatórios de Maranhão, com rotas do edital, propostas e localidades.",
+  "linhas": 216,
+  "bytes": 6093024
+ }
+]
